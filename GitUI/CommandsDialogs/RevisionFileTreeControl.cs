@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GitCommands;
@@ -14,6 +15,7 @@ using GitExtUtils.GitUI;
 using GitUI.CommandsDialogs.BrowseDialog;
 using GitUI.Hotkey;
 using GitUI.Properties;
+using GitUIPluginInterfaces;
 using JetBrains.Annotations;
 using ResourceManager;
 
@@ -62,7 +64,8 @@ See the changes in the commit form.");
             _findFilePredicateProvider = new FindFilePredicateProvider();
             _revisionFileTreeController = new RevisionFileTreeController(() => Module.WorkingDir,
                                                                          new GitRevisionInfoProvider(() => Module),
-                                                                         new FileAssociatedIconProvider());
+                                                                         new FileAssociatedIconProvider(),
+                                                                         new GdataNameResolver(() => Module));
         }
 
         public void ExpandToFile(string filePath)

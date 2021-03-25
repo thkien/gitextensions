@@ -51,12 +51,14 @@ namespace GitUI.CommandsDialogs
         private readonly Func<string> _getWorkingDir;
         private readonly IGitRevisionInfoProvider _revisionInfoProvider;
         private readonly ConcurrentDictionary<string, IEnumerable<IGitItem>> _cachedItems = new ConcurrentDictionary<string, IEnumerable<IGitItem>>();
+        private IGdataNameResolver _gdataNameResolver;
 
-        public RevisionFileTreeController(Func<string> getWorkingDir, IGitRevisionInfoProvider revisionInfoProvider, IFileAssociatedIconProvider iconProvider)
+        public RevisionFileTreeController(Func<string> getWorkingDir, IGitRevisionInfoProvider revisionInfoProvider, IFileAssociatedIconProvider iconProvider, IGdataNameResolver resolver = null)
         {
             _getWorkingDir = getWorkingDir;
             _revisionInfoProvider = revisionInfoProvider;
             _iconProvider = iconProvider;
+            _gdataNameResolver = resolver;
         }
 
         /// <summary>
@@ -138,6 +140,13 @@ namespace GitUI.CommandsDialogs
                                 }
 
                                 imageCollection.Add(extension, fileIcon);
+                            }
+
+                            var gdataName = _gdataNameResolver.ResolveName(gitItem);
+                            if (gdataName != null)
+                            {
+                                subNode.Text = $"{subNode.Text} ({gdataName})";
+                                subNode.ToolTipText = subNode.Text;
                             }
 
                             subNode.ImageKey = subNode.SelectedImageKey = extension;

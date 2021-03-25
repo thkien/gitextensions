@@ -66,6 +66,8 @@ namespace GitUI
         public new event KeyEventHandler KeyDown;
         public new event EnterEventHandler Enter;
 
+        private CancellationTokenSource _cancellationTokenSource;
+
         [Description("Disable showing open submodule menu items as bold")]
         [DefaultValue(false)]
         public bool DisableSubmoduleMenuItemBold { get; set; }
@@ -108,6 +110,8 @@ namespace GitUI
                     ErrorMessage = string.Empty
                 }
             };
+
+            _cancellationTokenSource = null;
 
             base.Enter += FileStatusList_Enter;
 
@@ -482,6 +486,11 @@ namespace GitUI
             var textMaxWidth = itemWidth - prefixTextStartX;
             var (prefix, text, suffix, textWidth) = formatter.FormatTextForDrawing(textMaxWidth, gitItemStatus.Name, gitItemStatus.OldName);
             text = AppendItemSubmoduleStatus(text, gitItemStatus);
+
+            if (!string.IsNullOrEmpty(item.Name))
+            {
+                text = $"{text} ({item.Name})";
+            }
 
             return (image, prefix, text, suffix, prefixTextStartX, textWidth, textMaxWidth);
         }
@@ -992,6 +1001,15 @@ namespace GitUI
             FileStatusListView.Groups.Clear();
             FileStatusListView.Items.Clear();
 
+            var gdataNameResolver = new GdataNameResolver(() => Module);
+
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+            }
+
+            _cancellationTokenSource = new CancellationTokenSource();
+
             bool hasChanges = GitItemStatusesWithDescription.Any(x => x.statuses.Count > 0);
 
             var list = new List<ListViewItem>();
@@ -1052,6 +1070,23 @@ namespace GitUI
                     {
                         listItem.Selected = true;
                     }
+
+                    // use listItem.Name as a tempolary value (will not be displayed)
+                    // this tempolary value will be used by FileStatusList.FileStatusListView_DrawSubItem later on
+                    // cannot use 'revision' because it's the parent of the one is selected for diff view
+
+                    // string name = gdataNameResolver.ResolveName(Revision, item);
+                    // listItem.Name = name != null ? name : "";
+
+                    ThreadHelper.JoinableTaskFactory.RunAsync(
+                       async () =>
+                       {
+                           var name = await gdataNameResolver.ResolveNameAsync(Revision, revision, item, _cancellationTokenSource.Token);
+
+                           await this.SwitchToMainThreadAsync();
+
+                           listItem.Name = name ?? "";
+                       });
 
                     listItem.Tag = new FileStatusItem(i.firstRev, i.secondRev, item);
                     list.Add(listItem);
