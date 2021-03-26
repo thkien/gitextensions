@@ -1081,7 +1081,7 @@ namespace GitUI
                     ThreadHelper.JoinableTaskFactory.RunAsync(
                        async () =>
                        {
-                           var name = await gdataNameResolver.ResolveNameAsync(Revision, revision, item, _cancellationTokenSource.Token);
+                           var name = await gdataNameResolver.ResolveNameAsync(i.firstRev, i.secondRev, item, _cancellationTokenSource.Token);
 
                            await this.SwitchToMainThreadAsync();
 
