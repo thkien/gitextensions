@@ -7,6 +7,7 @@
 import argparse, sys
 import glob
 import re
+import codecs
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -49,7 +50,7 @@ if __name__ == '__main__':
     combined = filenames + submodules
     for filename in combined:
         print (filename)
-        commonAssemblyInfo = open(filename, "r").readlines()
+        commonAssemblyInfo = codecs.open(filename, "r", "utf-8").readlines()
         o = ""
         for i in commonAssemblyInfo:
             line = i
@@ -63,7 +64,7 @@ if __name__ == '__main__':
                     data[1] = args.text
                     line = '"'.join(data)
             o += line
-        outfile = open(filename, "w")
+        outfile = codecs.open(filename, "w", "utf-8")
         outfile.writelines(o)
     
     filename = "..\GitExtensionsShellEx\GitExtensionsShellEx.rc"
@@ -113,7 +114,7 @@ if __name__ == '__main__':
             data[1] = '"' + args.text + '"\n'
             line = ', '.join(data)
         o += line
-    outfile = open(filename, "w")
+    outfile = codecs.open(filename, "w", "utf-8")
     outfile.writelines(o)
 
     for i in range(1, len(verSplitted)):
@@ -121,7 +122,7 @@ if __name__ == '__main__':
             verSplitted[i] = "0" + verSplitted[i]
 
     filename = "..\GitExtensionsDoc\source\conf.py"
-    docoConf = open(filename, "r").readlines()
+    docoConf = codecs.open(filename, "r", "utf-8").readlines()
     o = ""
     for i in docoConf:
         line = i
@@ -134,16 +135,16 @@ if __name__ == '__main__':
             data[1] = args.text
             line = " = '".join(data) + "'\n"
         o += line
-    outfile = open(filename, "w")
+    outfile = codecs.open(filename, "w", "utf-8")
     outfile.writelines(o)
     
     filename = "..\GitExtensionsVSIX\source.extension.vsixmanifest"
-    vsixManifest = open(filename, "r").readlines()
+    vsixManifest = codecs.open(filename, "r", "utf-8").readlines()
     o = ""
     for i in vsixManifest:
         line = i
         if line.find("<Identity Publisher=\"GitExt Team\" Version=") != -1:
             line = re.sub("<Identity Publisher=\"GitExt Team\" Version=\"[0-9\.]+", "<Identity Publisher=\"GitExt Team\" Version=\"" + '.'.join(verSplitted), line)
         o += line
-    outfile = open(filename, "w")
+    outfile = codecs.open(filename, "w", "utf-8")
     outfile.writelines(o)
