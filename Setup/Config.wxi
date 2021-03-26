@@ -2,7 +2,7 @@
 <Include>
 
   <?define Manufacturer = "Git Extensions Team" ?>
-  <?define ProductName = "Git Extensions" ?>
+  <?define ProductName = "Git Extensions with support for EB GUIDE" ?>
   <?define InstallName = GitExtensions ?>
 
   <?define AppRegKey = "Software\GitExtensions" ?>
